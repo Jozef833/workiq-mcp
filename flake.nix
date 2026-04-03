@@ -25,8 +25,16 @@
       ];
 
       perSystem =
-        { config, pkgs, system, ... }:
+        { config, system, ... }:
         let
+          pkgs = import inputs.nixpkgs {
+            inherit system;
+            config.allowUnfreePredicate =
+              pkg:
+              builtins.elem (inputs.nixpkgs.lib.getName pkg) [
+                "workiq"
+              ];
+          };
           workiq = pkgs.callPackage ./package.nix { };
         in
         {

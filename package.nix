@@ -38,7 +38,9 @@ let
     "aarch64-darwin" = "osx-arm64";
   };
 
-  platformDir = platformMap.${stdenv.hostPlatform.system} or (throw "Unsupported platform: ${stdenv.hostPlatform.system}");
+  platformDir =
+    platformMap.${stdenv.hostPlatform.system}
+      or (throw "Unsupported platform: ${stdenv.hostPlatform.system}");
 in
 stdenv.mkDerivation {
   pname = "workiq";
@@ -101,7 +103,13 @@ stdenv.mkDerivation {
     # (.workiq-wrapped breaks .NET's System.CommandLine root command parser)
     cat > $out/bin/workiq <<WRAPPER
     #!${stdenv.shell}
-    export LD_LIBRARY_PATH="$out/lib:${lib.makeLibraryPath [ icu openssl_3 zlib ]}\''${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
+    export LD_LIBRARY_PATH="$out/lib:${
+      lib.makeLibraryPath [
+        icu
+        openssl_3
+        zlib
+      ]
+    }\''${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
     exec "$out/libexec/workiq" "\$@"
     WRAPPER
     chmod +x $out/bin/workiq
