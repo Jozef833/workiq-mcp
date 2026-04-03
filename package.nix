@@ -8,7 +8,7 @@
   glibc,
   gcc-unwrapped,
   icu,
-  openssl_3,
+  openssl,
   zlib,
 
   # libmsalruntime.so deps
@@ -62,7 +62,7 @@ stdenv.mkDerivation {
     glibc
     gcc-unwrapped.lib
     icu
-    openssl_3
+    openssl
     zlib
 
     # libmsalruntime.so deps
@@ -91,12 +91,15 @@ stdenv.mkDerivation {
     cp package/bin/${platformDir}/workiq $out/libexec/workiq
     chmod +x $out/libexec/workiq
 
-    # libmsalruntime.so must be discoverable via LD_LIBRARY_PATH
+    # libmsalruntime must be both next to the binary (for .NET P/Invoke)
+    # and in $out/lib (for autoPatchelfHook RPATH resolution)
     if [ -f package/bin/${platformDir}/libmsalruntime.so ]; then
       cp package/bin/${platformDir}/libmsalruntime.so $out/lib/
+      cp package/bin/${platformDir}/libmsalruntime.so $out/libexec/
     fi
     if [ -f package/bin/${platformDir}/libmsalruntime.dylib ]; then
       cp package/bin/${platformDir}/libmsalruntime.dylib $out/lib/
+      cp package/bin/${platformDir}/libmsalruntime.dylib $out/libexec/
     fi
 
     # Manual wrapper to avoid makeWrapper renaming the binary
@@ -106,7 +109,7 @@ stdenv.mkDerivation {
     export LD_LIBRARY_PATH="$out/lib:${
       lib.makeLibraryPath [
         icu
-        openssl_3
+        openssl
         zlib
       ]
     }\''${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
